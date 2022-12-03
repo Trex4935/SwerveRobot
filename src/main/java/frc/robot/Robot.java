@@ -13,24 +13,26 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import io.github.oblarg.oblog.Logger;
 
- /*For starting a new Stampede swerve project
-  * 1. Zero out the following constants: ks, kv
-  * 2. From the top of the Constants Class to the PID gains fill in as much as possible
-  *    using Phoenix Tuner
-  * 3. Recalibrate NAVX Gyro
-  * 4. Until you characterize the robot, ur not gonna want to run trajectories
-  *    so probably, turn RUN_TRAJECTORY FALSE
-         */
+/*For starting a new Stampede swerve project
+ * 1. Zero out the following constants: ks, kv
+ * 2. From the top of the Constants Class to the PID gains fill in as much as possible
+ *    using Phoenix Tuner
+ * 3. Recalibrate NAVX Gyro
+ * 4. Until you characterize the robot, ur not gonna want to run trajectories
+ *    so probably, turn RUN_TRAJECTORY FALSE
+        */
 public class Robot extends TimedRobot {
   public static final boolean CHARACTERIZE_ROBOT = false;
   public static final boolean RUN_TRAJECTORY = true;
   public static SwerveDrive SWERVEDRIVE;
   public static SwerveCharacterization SWERVERCHARACTERIZATION;
   public static SwerveTrajectory SWERVETRAJECTORY;
-  public static XboxController xbox= new XboxController(0);
-  public static PathPlannerTrajectory examplePath; 
+  public static XboxController xbox = new XboxController(0);
+  public static PathPlannerTrajectory examplePath;
+
   /**
-   * This function is run when the robot is first started up and should be used for any
+   * This function is run when the robot is first started up and should be used
+   * for any
    * initialization code.
    */
   @Override
@@ -38,27 +40,34 @@ public class Robot extends TimedRobot {
     SwerveMap.GYRO = new AHRS(SPI.Port.kMXP);
     SwerveMap.driveRobotInit();
     SwerveMap.GYRO.reset();
-    //we do singleton methodologies to allow the shuffleboard (Oblarg) logger to detect the existence of these. #askSam
+    // we do singleton methodologies to allow the shuffleboard (Oblarg) logger to
+    // detect the existence of these. #askSam
     SWERVEDRIVE = SwerveDrive.getInstance();
     SWERVEDRIVE.init();
     SWERVEDRIVE.zeroSwerveDrive();
 
-    if(CHARACTERIZE_ROBOT){SWERVERCHARACTERIZATION = SwerveCharacterization.getInstance();}
-    if(RUN_TRAJECTORY) {
+    if (CHARACTERIZE_ROBOT) {
+      SWERVERCHARACTERIZATION = SwerveCharacterization.getInstance();
+    }
+    if (RUN_TRAJECTORY) {
       SWERVETRAJECTORY = SwerveTrajectory.getInstance();
       examplePath = PathPlanner.loadPath("New Path", 1, .8);
     }
-    //keep this statement on the BOTTOM of your robotInit
-    //It's responsible for all the shuffleboard outputs.  
-    //It's a lot easier to use than standard shuffleboard syntax
+    // keep this statement on the BOTTOM of your robotInit
+    // It's responsible for all the shuffleboard outputs.
+    // It's a lot easier to use than standard shuffleboard syntax
     Logger.configureLoggingAndConfig(this, false);
   }
 
   /**
-   * This function is called every robot packet, no matter the mode. Use this for items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
+   * This function is called every robot packet, no matter the mode. Use this for
+   * items like
+   * diagnostics that you want ran during disabled, autonomous, teleoperated and
+   * test.
    *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and
    * SmartDashboard integrated updating.
    */
   @Override
@@ -69,23 +78,29 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    if(CHARACTERIZE_ROBOT){SWERVERCHARACTERIZATION.init(true);}
+    if (CHARACTERIZE_ROBOT) {
+      SWERVERCHARACTERIZATION.init(true);
+    }
     SWERVEDRIVE.setToBrake();
 
-    //For Trajectory instructions go to SwerverTrajectory.java
-    if(RUN_TRAJECTORY) {SwerveTrajectory.resetTrajectoryStatus();}
+    // For Trajectory instructions go to SwerverTrajectory.java
+    if (RUN_TRAJECTORY) {
+      SwerveTrajectory.resetTrajectoryStatus();
+    }
 
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    if(CHARACTERIZE_ROBOT){SWERVERCHARACTERIZATION.periodic();}
-    
-    
-    if(RUN_TRAJECTORY){
-    //SwerveTrajectory.trajectoryRunner(TrajectoryContainer.jonahTrajectory, SWERVEDRIVE.m_odometry, SwerveMap.getRobotAngle());
-    SwerveTrajectory.PathPlannerRunner(examplePath, SWERVEDRIVE.m_odometry, SwerveMap.getRobotAngle());
+    if (CHARACTERIZE_ROBOT) {
+      SWERVERCHARACTERIZATION.periodic();
+    }
+
+    if (RUN_TRAJECTORY) {
+      // SwerveTrajectory.trajectoryRunner(TrajectoryContainer.jonahTrajectory,
+      // SWERVEDRIVE.m_odometry, SwerveMap.getRobotAngle());
+      SwerveTrajectory.PathPlannerRunner(examplePath, SWERVEDRIVE.m_odometry, SwerveMap.getRobotAngle());
     }
   }
 
@@ -93,31 +108,32 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     SWERVEDRIVE.setToBrake();
-    if(CHARACTERIZE_ROBOT){SWERVERCHARACTERIZATION.init(true);}
+    if (CHARACTERIZE_ROBOT) {
+      SWERVERCHARACTERIZATION.init(true);
+    }
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    //Joystick Drives stores values in X,Y,Z rotation
-    //Drive actually sends those values to the swerve modules
+    // Joystick Drives stores values in X,Y,Z rotation
+    // Drive actually sends those values to the swerve modules
     SWERVEDRIVE.joystickDrive();
     SWERVEDRIVE.drive(
-      SWERVEDRIVE.getSDxSpeed(), 
-      SWERVEDRIVE.getSDySpeed(), 
-      SWERVEDRIVE.getSDRotation(), 
-      SWERVEDRIVE.getSDFieldRelative()
-      );
+        SWERVEDRIVE.getSDxSpeed(),
+        SWERVEDRIVE.getSDySpeed(),
+        SWERVEDRIVE.getSDRotation(),
+        SWERVEDRIVE.getSDFieldRelative());
 
-   
-    
   }
 
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    if(CHARACTERIZE_ROBOT){SWERVERCHARACTERIZATION.disabled(false);}
-      //SwerveCharacterization.init();
+    if (CHARACTERIZE_ROBOT) {
+      SWERVERCHARACTERIZATION.disabled(false);
+    }
+    // SwerveCharacterization.init();
     SWERVEDRIVE.zeroSwerveDrive();
   }
 
@@ -129,11 +145,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+  }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
-
+  public void testPeriodic() {
+  }
 
 }

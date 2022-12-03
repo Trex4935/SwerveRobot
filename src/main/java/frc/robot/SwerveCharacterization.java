@@ -9,44 +9,48 @@ import edu.wpi.first.wpilibj.Timer;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Config;
 
-public class SwerveCharacterization implements Loggable{
+public class SwerveCharacterization implements Loggable {
     private static SwerveCharacterization SINGLE_INSTANCE = new SwerveCharacterization();
     private final NetworkTableEntry autoSpeedEntry = NetworkTableInstance.getDefault().getEntry("/robot/autospeed");
     private final NetworkTableEntry telemetryEntry = NetworkTableInstance.getDefault().getEntry("/robot/telemetry");
-    //private final NetworkTableEntry rotateEntry = NetworkTableInstance.getDefault().getEntry("/robot/rotate");
-    //private final NetworkTableEntry autoSpeedEntry = NetworkTableInstance.getDefault().getEntry("/SmartDashboard/SysIdAutoSpeed");
-    //private final NetworkTableEntry telemetryEntry = NetworkTableInstance.getDefault().getEntry("/SmartDashboard/SysIdTelemetry");
-    
+    // private final NetworkTableEntry rotateEntry =
+    // NetworkTableInstance.getDefault().getEntry("/robot/rotate");
+    // private final NetworkTableEntry autoSpeedEntry =
+    // NetworkTableInstance.getDefault().getEntry("/SmartDashboard/SysIdAutoSpeed");
+    // private final NetworkTableEntry telemetryEntry =
+    // NetworkTableInstance.getDefault().getEntry("/SmartDashboard/SysIdTelemetry");
+
     String data = "";
     int counter = 0;
     double startTime = 0;
     double[] numberArray = new double[10];
     ArrayList<Double> entries = new ArrayList<Double>();
 
-    //private List<Double> telemetryData = new ArrayList<>();
+    // private List<Double> telemetryData = new ArrayList<>();
 
     private double priorAutospeed = 0.0;
+
     public static SwerveCharacterization getInstance() {
         return SINGLE_INSTANCE;
     }
 
-    @Config.ToggleSwitch(name="reset char?", defaultValue = false)
+    @Config.ToggleSwitch(name = "reset char?", defaultValue = false)
     public void init(boolean _input) {
-        if (_input){
-        NetworkTableInstance.getDefault().setUpdateRate(10.0e-3);
-        counter = 0;
-        _input = false;
+        if (_input) {
+            NetworkTableInstance.getDefault().setUpdateRate(10.0e-3);
+            counter = 0;
+            _input = false;
         }
     }
-    
+
     public void periodic() {
         double now = Timer.getFPGATimestamp();
-        double position = Robot.SWERVEDRIVE.m_odometry.getPoseMeters().getX()/Constants.METERSperWHEEL_REVOLUTION;
+        double position = Robot.SWERVEDRIVE.m_odometry.getPoseMeters().getX() / Constants.METERSperWHEEL_REVOLUTION;
         System.out.println(position);
-        double velocity = (Robot.SWERVEDRIVE.getBackLeftSpeed()+
-        Robot.SWERVEDRIVE.getFrontLeftSpeed()+
-        Robot.SWERVEDRIVE.getBackRightSpeed()+
-        Robot.SWERVEDRIVE.getFrontRightSpeed())
+        double velocity = (Robot.SWERVEDRIVE.getBackLeftSpeed() +
+                Robot.SWERVEDRIVE.getFrontLeftSpeed() +
+                Robot.SWERVEDRIVE.getBackRightSpeed() +
+                Robot.SWERVEDRIVE.getFrontRightSpeed())
                 / 4 / Constants.METERSperWHEEL_REVOLUTION;
 
         double battery = RobotController.getBatteryVoltage();
@@ -55,7 +59,7 @@ public class SwerveCharacterization implements Loggable{
         double autospeed = autoSpeedEntry.getDouble(0.0);
         priorAutospeed = autospeed;
 
-        Robot.SWERVEDRIVE.setSDxSpeed(autospeed*Constants.MAX_SPEED_METERSperSECOND);
+        Robot.SWERVEDRIVE.setSDxSpeed(autospeed * Constants.MAX_SPEED_METERSperSECOND);
 
         numberArray[0] = now;
         numberArray[1] = battery;
@@ -69,8 +73,8 @@ public class SwerveCharacterization implements Loggable{
         numberArray[9] = Robot.SWERVEDRIVE.m_odometry.getPoseMeters().getRotation().getRadians();
         for (double num : numberArray) {
             entries.add(num);
-          }
-          counter++;
+        }
+        counter++;
     }
 
     public void disabled(boolean interrupted) {
